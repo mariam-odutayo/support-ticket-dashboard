@@ -1,1 +1,82 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT Support Ticket Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  body { font-family: Calibri, Arial, sans-serif; margin: 0; background: #f4f6f8; color: #1f2933; }
+  header { background: #1f3a5f; color: #fff; padding: 20px 16px; }
+  header h1 { margin: 0; font-size: 1.4rem; }
+  header p { margin: 4px 0 0; font-size: 0.9rem; opacity: 0.85; }
+  main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .card, .panel { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .card .n { font-size: 1.8rem; font-weight: bold; color: #1f3a5f; }
+  .card .l { font-size: 0.85rem; color: #52606d; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px; }
+  h2 { font-size: 1rem; margin: 0 0 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #e4e7eb; }
+  footer { text-align: center; font-size: 0.8rem; color: #52606d; padding: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Welcome to Mariam's Home</h1>
+  <p>IT Support Ticket Dashboard | Sample data created for demonstration. Not real company data.</p>
+</header>
+<main>
+  <div class="cards">
+    <div class="card"><div class="n" id="total">0</div><div class="l">Total tickets</div></div>
+    <div class="card"><div class="n" id="open">0</div><div class="l">Open tickets</div></div>
+    <div class="card"><div class="n" id="resolved">0</div><div class="l">Resolved</div></div>
+    <div class="card"><div class="n" id="avg">0</div><div class="l">Avg. resolution (hours)</div></div>
+  </div>
+  <div class="grid">
+    <div class="panel"><h2>Tickets by category</h2><canvas id="cat"></canvas></div>
+    <div class="panel"><h2>Tickets by status</h2><canvas id="status"></canvas></div>
+  </div>
+  <div class="panel" style="margin-top:12px"><h2>Tickets per week</h2><canvas id="week"></canvas></div>
+  <div class="panel" style="margin-top:12px">
+    <h2>Recent tickets</h2>
+    <table id="table"><thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Status</th><th>Hours</th></tr></thead><tbody></tbody></table>
+  </div>
+</main>
+<footer>Built by Mariam Odutayo with HTML, JavaScript and Chart.js | github.com/mariam-odutayo</footer>
+<script>
+// Sample data. Replace this list with your own data to update the dashboard.
+const tickets = [
+  {id:1001, cat:"Password reset", pri:"Low", status:"Resolved", hours:1, week:"Wk 1"},
+  {id:1002, cat:"Network", pri:"High", status:"Resolved", hours:6, week:"Wk 1"},
+  {id:1003, cat:"Software install", pri:"Low", status:"Resolved", hours:3, week:"Wk 1"},
+  {id:1004, cat:"Hardware", pri:"Medium", status:"Resolved", hours:12, week:"Wk 2"},
+  {id:1005, cat:"Password reset", pri:"Low", status:"Resolved", hours:1, week:"Wk 2"},
+  {id:1006, cat:"Email", pri:"Medium", status:"Resolved", hours:4, week:"Wk 2"},
+  {id:1007, cat:"Network", pri:"High", status:"Resolved", hours:8, week:"Wk 2"},
+  {id:1008, cat:"Software install", pri:"Low", status:"Resolved", hours:2, week:"Wk 3"},
+  {id:1009, cat:"Hardware", pri:"High", status:"In progress", hours:0, week:"Wk 3"},
+  {id:1010, cat:"Email", pri:"Low", status:"Resolved", hours:2, week:"Wk 3"},
+  {id:1011, cat:"Password reset", pri:"Low", status:"Resolved", hours:1, week:"Wk 3"},
+  {id:1012, cat:"Network", pri:"Medium", status:"In progress", hours:0, week:"Wk 4"},
+  {id:1013, cat:"Software install", pri:"Medium", status:"Open", hours:0, week:"Wk 4"},
+  {id:1014, cat:"Email", pri:"Low", status:"Open", hours:0, week:"Wk 4"},
+  {id:1015, cat:"Hardware", pri:"Medium", status:"Open", hours:0, week:"Wk 4"}
+];
+const count = (key) => tickets.reduce((o,t)=>{o[t[key]]=(o[t[key]]||0)+1;return o;},{});
+const resolved = tickets.filter(t=>t.status==="Resolved");
+document.getElementById("total").textContent = tickets.length;
+document.getElementById("open").textContent = tickets.filter(t=>t.status!=="Resolved").length;
+document.getElementById("resolved").textContent = resolved.length;
+document.getElementById("avg").textContent = (resolved.reduce((s,t)=>s+t.hours,0)/resolved.length).toFixed(1);
+const colors = ["#1f3a5f","#3e7cb1","#81a4cd","#dbe4ee","#e0a458"];
+const cat = count("cat"), st = count("status"), wk = count("week");
+new Chart(document.getElementById("cat"), {type:"doughnut", data:{labels:Object.keys(cat), datasets:[{data:Object.values(cat), backgroundColor:colors}]}});
+new Chart(document.getElementById("status"), {type:"bar", data:{labels:Object.keys(st), datasets:[{label:"Tickets", data:Object.values(st), backgroundColor:"#3e7cb1"}]}, options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}});
+new Chart(document.getElementById("week"), {type:"line", data:{labels:Object.keys(wk), datasets:[{label:"Tickets", data:Object.values(wk), borderColor:"#1f3a5f", tension:0.3}]}, options:{scales:{y:{beginAtZero:true, ticks:{precision:0}}}}});
+const tb = document.querySelector("#table tbody");
+tickets.slice(-8).reverse().forEach(t=>{ tb.insertAdjacentHTML("beforeend", `<tr><td>${t.id}</td><td>${t.cat}</td><td>${t.pri}</td><td>${t.status}</td><td>${t.hours}</td></tr>`); });
+</script>
+</body>
+</html>
